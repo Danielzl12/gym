@@ -1,0 +1,23 @@
+body { font-family: Arial, sans-serif; margin: 0; background: #fbf1e3; color: #2b1a12; }
+header { background: #e8572e; color: #fff; padding: 12px 20px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+header h1 { margin: 0; font-size: 20px; }
+nav a { color: #fff; margin-right: 14px; text-decoration: none; }
+main { max-width: 900px; margin: 20px auto; padding: 0 16px; }
+h2 { margin-top: 0; }
+form.fila { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+input, select, button { padding: 8px; font-size: 14px; }
+button { background: #f2a516; border: 0; cursor: pointer; border-radius: 4px; }
+button.borrar { background: #a63a1f; color: #fff; }
+table { width: 100%; border-collapse: collapse; background: #fff; }
+th, td { padding: 8px; border-bottom: 1px solid #eadfce; text-align: left; font-size: 14px; }
+th { background: #f3dfc4; }
+.tarjetas { display: flex; gap: 12px; flex-wrap: wrap; }
+.tarjeta { background: #fff; padding: 16px; border-radius: 6px; flex: 1; min-width: 150px; }
+.tarjeta b { font-size: 26px; display: block; }
+.mensaje { padding: 8px; margin-bottom: 12px; border-radius: 4px; }
+.mensaje.error { background: #f7d4cc; }
+.mensaje.ok { background: #d8ecd0; }
+.activa { color: #2d7a2d; font-weight: bold; }
+.vencida { color: #a63a1f; font-weight: bold; }
+.login { max-width: 320px; margin: 80px auto; background: #fff; padding: 24px; border-radius: 6px; }
+.login form { display: flex; flex-direction: column; gap: 8px; }

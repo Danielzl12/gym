@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GymBarrio - {% block titulo %}{% endblock %}</title>
+  <style>{% include "estilos.css" %}</style>
+</head>
+<body>
+  {% if session.get("token") %}
+  <header>
+    <h1>GymBarrio</h1>
+    <nav>
+      <a href="/inicio">Inicio</a>
+      <a href="/clientes">Clientes</a>
+      <a href="/planes">Planes</a>
+      <a href="/membresias">Membresías</a>
+      <a href="/asistencia">Asistencia</a>
+      <a href="/salir">Salir</a>
+    </nav>
+  </header>
+  {% endif %}
+  <main>
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+      {% for tipo, texto in mensajes %}
+        <div class="mensaje {{ tipo }}">{{ texto }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block contenido %}{% endblock %}
+  </main>
+</body>
+</html>
