@@ -111,3 +111,55 @@ def eliminar_cliente(id_cliente):
     db.eliminar("clientes", id_cliente, session["token"])
     flash("Cliente eliminado.", "ok")
     return redirect("/clientes")
+
+
+# ---------- Membresías ----------
+@app.route("/membresias", methods=["GET", "POST"])
+@requiere_login
+def membresias():
+    token = session["token"]
+    if request.method == "POST":
+        id_cliente = request.form.get("cliente", "")
+        id_plan = request.form.get("plan", "")
+        inicio_texto = request.form.get("inicio", "")
+        try:
+            inicio_fecha = date.fromisoformat(inicio_texto)
+        except ValueError:
+            flash("La fecha de inicio no es válida.", "error")
+            return redirect("/membresias")
+        if not (id_cliente.isdigit() and id_plan.isdigit()):
+            flash("Selecciona un cliente y un plan.", "error")
+            return redirect("/membresias")
+
+        plan = db.consultar("planes", token, {"id": "eq." + id_plan, "select": "*"})
+        if not plan:
+            flash("El plan no existe.", "error")
+            return redirect("/membresias")
+        plan = plan[0]
+        vence = inicio_fecha + timedelta(days=plan["duracion_dias"])
+
+        membresia = db.insertar("membresias", {
+            "cliente_id": int(id_cliente),
+            "plan_id": plan["id"],
+            "fecha_inicio": inicio_fecha.isoformat(),
+            "fecha_vencimiento": vence.isoformat(),
+        }, token)
+        # Cada membresía registra su pago
+        db.insertar("pagos", {"membresia_id": membresia["id"], "valor": plan["precio"],
+                              "fecha": hoy().isoformat()}, token)
+        flash("Membresía registrada.", "ok")
+        return redirect("/membresias")
+
+    lista = db.consultar("membresias", token, {
+        "select": "id,fecha_inicio,fecha_vencimiento,clientes(nombre),planes(nombre)",
+        "order": "fecha_vencimiento.desc",
+    })
+    for m in lista:
+        m["activa"] = m["fecha_vencimiento"] >= hoy().isoformat()
+    return render_template(
+        "membresias.html",
+        membresias=lista,
+        clientes=db.consultar("clientes", token, {"select": "id,nombre", "order": "nombre"}),
+        planes=db.consultar("planes", token, {"select": "*", "order": "duracion_dias"}),
+        hoy=hoy().isoformat(),
+    )

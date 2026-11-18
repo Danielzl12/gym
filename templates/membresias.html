@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block titulo %}Membresías{% endblock %}
+{% block contenido %}
+<h2>Membresías</h2>
+<form method="post" class="fila">
+  <select name="cliente" required>
+    <option value="">Cliente...</option>
+    {% for c in clientes %}<option value="{{ c.id }}">{{ c.nombre }}</option>{% endfor %}
+  </select>
+  <select name="plan" required>
+    <option value="">Plan...</option>
+    {% for p in planes %}<option value="{{ p.id }}">{{ p.nombre }} - {{ p.precio | pesos }}</option>{% endfor %}
+  </select>
+  <input name="inicio" type="date" value="{{ hoy }}" required>
+  <button type="submit">Registrar / renovar</button>
+</form>
+<table>
+  <thead><tr><th>Cliente</th><th>Plan</th><th>Inicio</th><th>Vence</th><th>Estado</th></tr></thead>
+  <tbody>
+  {% for m in membresias %}
+    <tr>
+      <td>{{ m.clientes.nombre }}</td><td>{{ m.planes.nombre }}</td>
+      <td>{{ m.fecha_inicio }}</td><td>{{ m.fecha_vencimiento }}</td>
+      <td class="{{ 'activa' if m.activa else 'vencida' }}">{{ "Activa" if m.activa else "Vencida" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
