@@ -2,5 +2,10 @@
 {% block titulo %}Inicio{% endblock %}
 {% block contenido %}
 <h2>Inicio</h2>
-<p>Bienvenido al sistema de gestión de GymBarrio.</p>
+<div class="tarjetas">
+  <div class="tarjeta"><b>{{ total_clientes }}</b>Clientes registrados</div>
+  <div class="tarjeta"><b>{{ miembros_activos }}</b>Miembros activos</div>
+  <div class="tarjeta"><b>{{ entradas_hoy }}</b>Entradas hoy</div>
+  <div class="tarjeta"><b>{{ ingresos_mes | pesos }}</b>Ingresos del mes</div>
+</div>
 {% endblock %}

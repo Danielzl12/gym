@@ -71,7 +71,22 @@ def salir():
 @app.route("/inicio")
 @requiere_login
 def inicio():
-    return render_template("inicio.html")
+    token = session["token"]
+    fecha = hoy()
+    inicio_mes = fecha.replace(day=1).isoformat()
+
+    total_clientes = len(db.consultar("clientes", token, {"select": "id"}))
+    vigentes = db.consultar("membresias", token, {
+        "fecha_vencimiento": "gte." + fecha.isoformat(), "select": "cliente_id"})
+    miembros_activos = len({m["cliente_id"] for m in vigentes})
+    entradas_hoy = len(db.consultar("asistencias", token, {
+        "fecha_hora": "gte." + fecha.isoformat() + "T00:00:00-05:00", "select": "id"}))
+    pagos_mes = db.consultar("pagos", token, {"fecha": "gte." + inicio_mes, "select": "valor"})
+    ingresos_mes = sum(p["valor"] for p in pagos_mes)
+
+    return render_template("inicio.html", total_clientes=total_clientes,
+                           miembros_activos=miembros_activos, entradas_hoy=entradas_hoy,
+                           ingresos_mes=ingresos_mes)
 
 
 # ---------- Clientes ----------
