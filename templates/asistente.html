@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block titulo %}Asistente{% endblock %}
+{% block contenido %}
+<h2>Asistente</h2>
+<p>Pregunta por el balance del gimnasio. Por ejemplo: «¿cuántos miembros activos hay?» o «¿cuánto dinero entró este mes?».</p>
+<div class="chat">
+  {% for quien, texto in chat %}
+    <p class="{{ quien }}">{{ texto }}</p>
+  {% endfor %}
+</div>
+<form method="post" class="fila">
+  <input name="pregunta" maxlength="200" placeholder="Escribe tu pregunta..." required autofocus>
+  <button type="submit">Preguntar</button>
+</form>
+{% endblock %}
