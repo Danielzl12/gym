@@ -29,6 +29,13 @@ docs/evidencias/      Capturas de funcionamiento
 ```
 
 
+## Demo en línea
+Aplicación desplegada en Vercel: https://gymbarrio.vercel.app
+
+Usuario de prueba (administrador):
+- Correo: `admin@gymbarrio.com`
+- Contraseña: `Admin12345`
+
 ## Base de datos
 Las tablas están en el schema `gym` (ver `db/schema.sql`). Solo pueden usar el sistema los correos que estén en la tabla `gym.admins`:
 
