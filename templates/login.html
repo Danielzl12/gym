@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Ingreso{% endblock %}
+{% block contenido %}
+<div class="login">
+  <h2>GymBarrio</h2>
+  <p>Ingreso del administrador</p>
+  <form method="post">
+    <input type="email" name="email" placeholder="Correo" required>
+    <input type="password" name="clave" placeholder="Contraseña (mín. 6)" minlength="6" required>
+    <button type="submit" name="accion" value="ingresar">Ingresar</button>
+    <button type="submit" name="accion" value="crear">Crear cuenta de administrador</button>
+  </form>
+</div>
+{% endblock %}
