@@ -6,8 +6,10 @@ from functools import wraps
 
 from flask import Flask, render_template, request, redirect, session, flash
 
+import asistente
 import balance
 import db
+from ia import red
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "clave-solo-para-desarrollo")
@@ -240,3 +242,22 @@ def asistencia():
         clientes=db.consultar("clientes", token, {"select": "id,nombre", "order": "nombre"}),
     )
 
+
+# ---------- Asistente (chatbot con red neuronal) ----------
+@app.route("/asistente", methods=["GET", "POST"])
+@requiere_login
+def asistente_chat():
+    if request.method == "POST":
+        pregunta = request.form.get("pregunta", "").strip()
+        if not pregunta:
+            flash("Escribe una pregunta.", "error")
+        elif len(pregunta) > 200:
+            flash("La pregunta es muy larga (máximo 200 caracteres).", "error")
+        else:
+            intencion, _seguridad = red.entender(pregunta)
+            respuesta = asistente.responder(intencion, session["token"], hoy())
+            # La conversación se guarda en la sesión (solo los últimos 8 mensajes)
+            chat = session.get("chat", []) + [["yo", pregunta], ["asistente", respuesta]]
+            session["chat"] = chat[-8:]
+        return redirect("/asistente")
+    return render_template("asistente.html", chat=session.get("chat", []))
