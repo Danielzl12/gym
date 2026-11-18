@@ -67,5 +67,43 @@ Si falla la conexión, la sesión vence o el usuario no tiene permiso, la aplica
 | Frontend en HTML, CSS y JavaScript con API REST en Node.js | Python con Flask, que genera las páginas | Menos piezas, más sencillo para el tiempo disponible y el mismo lenguaje que usará la inteligencia artificial |
 | Asistencia e ingresos como fase posterior | Se incluyeron de forma mínima | El asistente de la segunda fase necesita responder cuántos clientes han venido y cuánto dinero ha ingresado |
 
-## Siguiente fase
-Chatbot para el administrador con una red neuronal simple (TensorFlow/Keras) que responda preguntas como miembros activos, ingresos de membresías o clientes que han venido.
+## Segunda fase: asistente con inteligencia artificial
+**Estado: en desarrollo.**
+
+**Objetivo.** Agregar al sistema un chatbot para el administrador que responda preguntas de balance del gimnasio, por ejemplo: ¿cuántos miembros activos tengo?, ¿cuánto dinero ingresó este mes por membresías?, ¿cuántos clientes han venido hoy?, ¿qué membresías vencen pronto?
+
+**Cómo funciona**
+```
+Administrador escribe la pregunta
+        -> Chatbot (nueva pantalla de la aplicación)
+        -> Red neuronal: identifica qué quiere saber (la intención)
+        -> La aplicación consulta la base de datos y calcula el dato
+        -> Respuesta con el dato real
+```
+La red neuronal no inventa números: solo entiende la pregunta. El dato sale siempre de la base de datos, así la respuesta es exacta y siempre está actualizada.
+
+**La red neuronal.** Es una red propia, local, que no depende de servicios externos ni de claves de API. Sigue la arquitectura de la guía (entrada, capa oculta con ReLU y capa de salida):
+- **Entrada:** la pregunta convertida en un vector de palabras.
+- **Capa oculta:** neuronas con ReLU.
+- **Salida:** una neurona por intención con Softmax. La guía usa una sola salida con Sigmoid porque su problema es de sí o no; aquí hay varias intenciones posibles.
+- **Entrenamiento:** frases de ejemplo escritas por el equipo para cada intención, con pérdida de entropía cruzada y descenso del gradiente. El modelo entrenado se guarda en un archivo dentro del repositorio.
+
+| Paso de la guía | Cómo se hace en el proyecto |
+|---|---|
+| Preparar los datos | Frases de ejemplo etiquetadas por intención |
+| Crear la red | Capa oculta ReLU y salida Softmax |
+| Configurar y entrenar | Propagación hacia adelante, pérdida y retropropagación |
+| Realizar una predicción | Probabilidad de cada intención para una pregunta nueva |
+| Guardar el modelo | Archivo con los pesos de la red |
+| Integrarlo a la herramienta | Ruta del chatbot en la aplicación Flask |
+
+**Por qué se entrena con NumPy y no con TensorFlow/Keras.** La guía propone TensorFlow y Keras. El equipo mantuvo la misma red y los mismos pasos, pero cambió la herramienta de entrenamiento por NumPy, por estas razones:
+1. **Despliegue.** La aplicación funciona en Vercel, cuyas funciones de Python permiten hasta 500 MB. TensorFlow, una vez empaquetado, ocupa alrededor de 2 GB según lo reportado por usuarios de Vercel, así que no se puede desplegar ahí. La alternativa era montar un servidor aparte solo para la IA: más piezas y más complejidad para el tiempo disponible.
+2. **Tamaño del problema.** El modelo es pequeño (un vocabulario de unos cientos de palabras y pocas neuronas). Un framework completo sobra: con NumPy entrena en segundos y predecir es solo multiplicar matrices.
+3. **Comprensión.** Al programar a mano la propagación hacia adelante y la retropropagación se ve cada paso que Keras hace internamente, que es justo el flujo de datos de la entrada a la predicción que la guía quiere que se entienda.
+
+**Avance**
+- [ ] Frases de ejemplo por intención
+- [ ] Entrenamiento y modelo guardado
+- [ ] Pantalla del chatbot e integración con la base de datos
+- [ ] Pruebas y evidencias
