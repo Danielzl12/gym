@@ -11,16 +11,21 @@ Proyecto de Taller de Programación: prototipo funcional de gestión y asistente
 - Pagos: se registra uno automáticamente por cada membresía
 - Asistencia: registrar la entrada de clientes con membresía activa
 - Inicio: resumen (clientes, miembros activos, entradas de hoy, ingresos del mes)
+- Asistente: chatbot con red neuronal que responde preguntas de balance
 
 ## Tecnologías
 - Lenguaje: Python 3 con Flask
 - Base de datos y autenticación: Supabase (PostgreSQL)
+- Inteligencia artificial: red neuronal entrenada con Keras y usada con NumPy
 - Despliegue: Vercel
 
 ## Estructura
 ```
 app.py                Rutas de la aplicación (Flask)
 db.py                 Conexión con Supabase
+balance.py            Cálculos del balance (inicio y asistente)
+asistente.py          Respuestas del asistente según la intención
+ia/                   Red neuronal: frases, entrenamiento, modelo y pruebas
 templates/            Páginas HTML (Jinja) y estilos
 db/schema.sql         Tablas y seguridad de la base de datos
 requirements.txt      Dependencias de Python
@@ -29,8 +34,8 @@ docs/evidencias/      Capturas de funcionamiento
 ```
 
 
-## Demo en línea
-Aplicación desplegada en Vercel: https://gymbarrio.vercel.app
+## Aplicación en línea
+GymBarrio está desplegado y funcionando en Vercel: https://gymbarrio.vercel.app
 
 Usuario de prueba (administrador):
 - Correo: `admin@gymbarrio.com`
@@ -56,7 +61,7 @@ Si falla la conexión, la sesión vence o el usuario no tiene permiso, la aplica
 - **Seguridad:** solo los correos registrados en `gym.admins` pueden leer o escribir datos (Row Level Security). Las credenciales no están en el repositorio: se configuran como variables de entorno.
 - **Aplicación en Python (Flask):** login, cinco pantallas con menú de navegación, validaciones en los formularios y mensajes de error claros cuando algo falla.
 - **Reglas del negocio:** cada membresía calcula su vencimiento según el plan y registra su pago; solo entra el cliente con membresía activa.
-- **Despliegue** en Vercel y **datos de demostración** para probar el sistema.
+- **Despliegue** en Vercel y **datos de prueba** (clientes, membresías y asistencias ficticios).
 - **Trabajo en equipo:** el desarrollo quedó repartido en commits de los tres integrantes sobre el mismo repositorio.
 - **Pruebas:** se verificó el flujo completo (login, crear cliente, documento duplicado, membresía, asistencia y resumen) y que un usuario sin permiso no puede leer ni escribir.
 
@@ -68,42 +73,38 @@ Si falla la conexión, la sesión vence o el usuario no tiene permiso, la aplica
 | Asistencia e ingresos como fase posterior | Se incluyeron de forma mínima | El asistente de la segunda fase necesita responder cuántos clientes han venido y cuánto dinero ha ingresado |
 
 ## Segunda fase: asistente con inteligencia artificial
-**Estado: en desarrollo.**
+**Estado: completada.** Está en la página, en el menú **Asistente**.
 
-**Objetivo.** Agregar al sistema un chatbot para el administrador que responda preguntas de balance del gimnasio, por ejemplo: ¿cuántos miembros activos tengo?, ¿cuánto dinero ingresó este mes por membresías?, ¿cuántos clientes han venido hoy?, ¿qué membresías vencen pronto?
+**Objetivo.** Un chatbot para el administrador que responde preguntas de balance del gimnasio, por ejemplo: ¿cuántos miembros activos tengo?, ¿cuánto dinero ingresó este mes por membresías?, ¿cuántos clientes han venido hoy?, ¿qué membresías vencen pronto?
 
 **Cómo funciona**
 ```
 Administrador escribe la pregunta
-        -> Chatbot (nueva pantalla de la aplicación)
         -> Red neuronal: identifica qué quiere saber (la intención)
         -> La aplicación consulta la base de datos y calcula el dato
         -> Respuesta con el dato real
 ```
-La red neuronal no inventa números: solo entiende la pregunta. El dato sale siempre de la base de datos, así la respuesta es exacta y siempre está actualizada.
+La red neuronal no inventa números: solo entiende la pregunta. El dato sale siempre de la base de datos, así que la respuesta es exacta y está al día. Si la red no está segura de qué se preguntó, responde que no entendió en lugar de adivinar.
 
-**La red neuronal.** Es una red propia, local, que no depende de servicios externos ni de claves de API. Sigue la arquitectura de la guía (entrada, capa oculta con ReLU y capa de salida):
-- **Entrada:** la pregunta convertida en un vector de palabras.
-- **Capa oculta:** neuronas con ReLU.
-- **Salida:** una neurona por intención con Softmax. La guía usa una sola salida con Sigmoid porque su problema es de sí o no; aquí hay varias intenciones posibles.
-- **Entrenamiento:** frases de ejemplo escritas por el equipo para cada intención, con pérdida de entropía cruzada y descenso del gradiente. El modelo entrenado se guarda en un archivo dentro del repositorio.
+**La red neuronal.** Es una red propia y local, sin servicios externos ni claves de API. Sigue la arquitectura de la guía:
+- **Entrada:** la pregunta convertida en un vector de palabras (sin tildes ni mayúsculas).
+- **Capa oculta:** 16 neuronas con ReLU.
+- **Salida:** una neurona por intención con Softmax (7 intenciones: saludo, ayuda, total de clientes, miembros activos, entradas de hoy, ingresos del mes y membresías por vencer). La guía usa una sola salida con Sigmoid porque su problema es de sí o no; aquí hay varias intenciones posibles.
+- **Entrenamiento:** 93 frases de ejemplo escritas por el equipo, pérdida de entropía cruzada y optimizador Adam.
+- **Resultado:** 100 % en las frases de entrenamiento y 21 de 21 aciertos en frases nuevas que la red nunca vio (`python -m ia.pruebas`).
 
-| Paso de la guía | Cómo se hace en el proyecto |
+| Paso de la guía | Cómo se hizo en el proyecto |
 |---|---|
-| Preparar los datos | Frases de ejemplo etiquetadas por intención |
-| Crear la red | Capa oculta ReLU y salida Softmax |
-| Configurar y entrenar | Propagación hacia adelante, pérdida y retropropagación |
-| Realizar una predicción | Probabilidad de cada intención para una pregunta nueva |
-| Guardar el modelo | Archivo con los pesos de la red |
-| Integrarlo a la herramienta | Ruta del chatbot en la aplicación Flask |
+| Preparar los datos | Frases de ejemplo por intención (`ia/frases.py`) |
+| Crear la red | Capa oculta ReLU y salida Softmax con Keras (`ia/entrenar.py`) |
+| Configurar y entrenar | `compile` y `fit` de Keras |
+| Realizar una predicción | Probabilidad de cada intención para una pregunta nueva (`ia/red.py`) |
+| Guardar el modelo | Pesos en `ia/modelo.json` |
+| Integrarlo a la herramienta | Ruta `/asistente` en la aplicación Flask |
 
-**Por qué se entrena con NumPy y no con TensorFlow/Keras.** La guía propone TensorFlow y Keras. El equipo mantuvo la misma red y los mismos pasos, pero cambió la herramienta de entrenamiento por NumPy, por estas razones:
-1. **Despliegue.** La aplicación funciona en Vercel, cuyas funciones de Python permiten hasta 500 MB. Lo probamos: al desplegar una app de prueba con `tensorflow-cpu` (la versión más liviana), Vercel rechazó el despliegue con el error `LAMBDA_SIZE_EXCEEDED` (paquete de 1388 MB frente al máximo de 500 MB). Así que no se puede desplegar ahí. La alternativa era montar un servidor aparte solo para la IA: más piezas y más complejidad para el tiempo disponible.
-2. **Tamaño del problema.** El modelo es pequeño (un vocabulario de unos cientos de palabras y pocas neuronas). Un framework completo sobra: con NumPy entrena en segundos y predecir es solo multiplicar matrices.
-3. **Comprensión.** Al programar a mano la propagación hacia adelante y la retropropagación se ve cada paso que Keras hace internamente, que es justo el flujo de datos de la entrada a la predicción que la guía quiere que se entienda.
+**Keras para entrenar, NumPy para usar la red.** El equipo usó la tecnología de la guía, Keras con TensorFlow, para crear y entrenar la red en el computador. La página en línea, en cambio, no usa TensorFlow: lee los pesos guardados y calcula la predicción con NumPy. Motivos:
+1. **Límite de Vercel.** Lo probamos: al desplegar una app de prueba con `tensorflow-cpu` (la versión más liviana), Vercel rechazó el despliegue con el error `LAMBDA_SIZE_EXCEEDED` (paquete de 1388 MB frente al máximo de 500 MB). NumPy pesa unos 60 MB.
+2. **Mismo resultado.** Con los mismos pesos, Keras y NumPy dan la misma probabilidad (diferencia menor a 0,0000001), porque la predicción solo son dos multiplicaciones de matrices, una activación ReLU y un Softmax.
+3. **Más simple.** Un solo despliegue, sin un servidor aparte para la IA.
 
-**Avance**
-- [ ] Frases de ejemplo por intención
-- [ ] Entrenamiento y modelo guardado
-- [ ] Pantalla del chatbot e integración con la base de datos
-- [ ] Pruebas y evidencias
+**Si se quiere mejorar el asistente.** Se agregan frases en `ia/frases.py` (o una intención nueva con su respuesta en `asistente.py`) y se vuelve a entrenar en el computador con `pip install -r ia/requirements-entrenamiento.txt` y `python -m ia.entrenar`. Eso actualiza `ia/modelo.json`.
