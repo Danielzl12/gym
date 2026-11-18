@@ -197,3 +197,38 @@ def membresias():
         planes=db.consultar("planes", token, {"select": "*", "order": "duracion_dias"}),
         hoy=hoy().isoformat(),
     )
+
+
+# ---------- Asistencia ----------
+@app.route("/asistencia", methods=["GET", "POST"])
+@requiere_login
+def asistencia():
+    token = session["token"]
+    if request.method == "POST":
+        id_cliente = request.form.get("cliente", "")
+        if not id_cliente.isdigit():
+            flash("Selecciona un cliente.", "error")
+            return redirect("/asistencia")
+        # Solo entra quien tenga una membresía vigente
+        vigentes = db.consultar("membresias", token, {
+            "cliente_id": "eq." + id_cliente,
+            "fecha_vencimiento": "gte." + hoy().isoformat(),
+            "select": "id", "limit": 1,
+        })
+        if not vigentes:
+            flash("Este cliente no tiene membresía activa.", "error")
+        else:
+            db.insertar("asistencias", {"cliente_id": int(id_cliente)}, token)
+            flash("Entrada registrada.", "ok")
+        return redirect("/asistencia")
+    lista = db.consultar("asistencias", token, {
+        "select": "fecha_hora,clientes(nombre)", "order": "fecha_hora.desc", "limit": 30,
+    })
+    for a in lista:
+        a["fecha_hora"] = datetime.fromisoformat(a["fecha_hora"]).astimezone(
+            ZoneInfo("America/Bogota")).strftime("%Y-%m-%d %H:%M")
+    return render_template(
+        "asistencia.html",
+        asistencias=lista,
+        clientes=db.consultar("clientes", token, {"select": "id,nombre", "order": "nombre"}),
+    )
