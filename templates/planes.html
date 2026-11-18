@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block titulo %}Planes{% endblock %}
+{% block contenido %}
+<h2>Planes</h2>
+<form method="post" class="fila">
+  <input name="nombre" placeholder="Nombre del plan" required>
+  <input name="duracion" type="number" min="1" placeholder="Duración (días)" required>
+  <input name="precio" type="number" min="0" placeholder="Precio" required>
+  <button type="submit">Guardar</button>
+</form>
+<table>
+  <thead><tr><th>Plan</th><th>Duración</th><th>Precio</th><th></th></tr></thead>
+  <tbody>
+  {% for p in planes %}
+    <tr>
+      <td>{{ p.nombre }}</td><td>{{ p.duracion_dias }} días</td><td>{{ p.precio | pesos }}</td>
+      <td>
+        <form method="post" action="/planes/{{ p.id }}/eliminar" onsubmit="return confirm('¿Eliminar este plan?')">
+          <button class="borrar" type="submit">Eliminar</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

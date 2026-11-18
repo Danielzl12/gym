@@ -113,6 +113,40 @@ def eliminar_cliente(id_cliente):
     return redirect("/clientes")
 
 
+# ---------- Planes ----------
+@app.route("/planes", methods=["GET", "POST"])
+@requiere_login
+def planes():
+    token = session["token"]
+    if request.method == "POST":
+        nombre = request.form.get("nombre", "").strip()
+        duracion = request.form.get("duracion", "")
+        precio = request.form.get("precio", "")
+        if not nombre:
+            flash("Escribe el nombre del plan.", "error")
+        elif not (duracion.isdigit() and int(duracion) > 0):
+            flash("La duración debe ser un número de días mayor a 0.", "error")
+        elif not precio.isdigit():
+            flash("El precio debe ser un número sin negativos.", "error")
+        else:
+            db.insertar("planes", {"nombre": nombre, "duracion_dias": int(duracion), "precio": int(precio)}, token)
+            flash("Plan guardado.", "ok")
+        return redirect("/planes")
+    lista = db.consultar("planes", token, {"select": "*", "order": "duracion_dias"})
+    return render_template("planes.html", planes=lista)
+
+
+@app.route("/planes/<int:id_plan>/eliminar", methods=["POST"])
+@requiere_login
+def eliminar_plan(id_plan):
+    try:
+        db.eliminar("planes", id_plan, session["token"])
+        flash("Plan eliminado.", "ok")
+    except db.ErrorBD:
+        flash("No se puede eliminar: el plan tiene membresías.", "error")
+    return redirect("/planes")
+
+
 # ---------- Membresías ----------
 @app.route("/membresias", methods=["GET", "POST"])
 @requiere_login
