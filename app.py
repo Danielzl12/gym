@@ -6,6 +6,7 @@ from functools import wraps
 
 from flask import Flask, render_template, request, redirect, session, flash
 
+import balance
 import db
 
 app = Flask(__name__)
@@ -73,20 +74,11 @@ def salir():
 def inicio():
     token = session["token"]
     fecha = hoy()
-    inicio_mes = fecha.replace(day=1).isoformat()
+    return render_template("inicio.html", total_clientes=balance.total_clientes(token),
+                           miembros_activos=balance.miembros_activos(token, fecha),
+                           entradas_hoy=balance.entradas_hoy(token, fecha),
+                           ingresos_mes=balance.ingresos_mes(token, fecha))
 
-    total_clientes = len(db.consultar("clientes", token, {"select": "id"}))
-    vigentes = db.consultar("membresias", token, {
-        "fecha_vencimiento": "gte." + fecha.isoformat(), "select": "cliente_id"})
-    miembros_activos = len({m["cliente_id"] for m in vigentes})
-    entradas_hoy = len(db.consultar("asistencias", token, {
-        "fecha_hora": "gte." + fecha.isoformat() + "T00:00:00-05:00", "select": "id"}))
-    pagos_mes = db.consultar("pagos", token, {"fecha": "gte." + inicio_mes, "select": "valor"})
-    ingresos_mes = sum(p["valor"] for p in pagos_mes)
-
-    return render_template("inicio.html", total_clientes=total_clientes,
-                           miembros_activos=miembros_activos, entradas_hoy=entradas_hoy,
-                           ingresos_mes=ingresos_mes)
 
 
 # ---------- Clientes ----------
@@ -247,3 +239,4 @@ def asistencia():
         asistencias=lista,
         clientes=db.consultar("clientes", token, {"select": "id,nombre", "order": "nombre"}),
     )
+
