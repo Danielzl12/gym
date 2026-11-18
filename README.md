@@ -98,7 +98,7 @@ La red neuronal no inventa números: solo entiende la pregunta. El dato sale sie
 | Integrarlo a la herramienta | Ruta del chatbot en la aplicación Flask |
 
 **Por qué se entrena con NumPy y no con TensorFlow/Keras.** La guía propone TensorFlow y Keras. El equipo mantuvo la misma red y los mismos pasos, pero cambió la herramienta de entrenamiento por NumPy, por estas razones:
-1. **Despliegue.** La aplicación funciona en Vercel, cuyas funciones de Python permiten hasta 500 MB. TensorFlow, una vez empaquetado, ocupa alrededor de 2 GB según lo reportado por usuarios de Vercel, así que no se puede desplegar ahí. La alternativa era montar un servidor aparte solo para la IA: más piezas y más complejidad para el tiempo disponible.
+1. **Despliegue.** La aplicación funciona en Vercel, cuyas funciones de Python permiten hasta 500 MB. Lo probamos: al desplegar una app de prueba con `tensorflow-cpu` (la versión más liviana), Vercel rechazó el despliegue con el error `LAMBDA_SIZE_EXCEEDED` (paquete de 1388 MB frente al máximo de 500 MB). Así que no se puede desplegar ahí. La alternativa era montar un servidor aparte solo para la IA: más piezas y más complejidad para el tiempo disponible.
 2. **Tamaño del problema.** El modelo es pequeño (un vocabulario de unos cientos de palabras y pocas neuronas). Un framework completo sobra: con NumPy entrena en segundos y predecir es solo multiplicar matrices.
 3. **Comprensión.** Al programar a mano la propagación hacia adelante y la retropropagación se ve cada paso que Keras hace internamente, que es justo el flujo de datos de la entrada a la predicción que la guía quiere que se entienda.
 
