@@ -28,24 +28,6 @@ requirements.txt      Dependencias de Python
 docs/evidencias/      Capturas de funcionamiento
 ```
 
-## Cómo ejecutarlo
-1. Clonar el repositorio e instalar dependencias:
-   ```
-   pip install -r requirements.txt
-   ```
-2. Definir las variables de entorno (ver `.env.example`). Las credenciales no se suben al repositorio.
-   ```
-   # Windows (PowerShell)
-   $env:SUPABASE_URL="https://TU-PROYECTO.supabase.co"
-   $env:SUPABASE_KEY="tu_publishable_key"
-   $env:SECRET_KEY="una_frase_larga_y_secreta"
-   # Linux / Mac
-   export SUPABASE_URL=... SUPABASE_KEY=... SECRET_KEY=...
-   ```
-3. Iniciar la aplicación y abrir http://127.0.0.1:5000
-   ```
-   flask --app app run
-   ```
 
 ## Base de datos
 Las tablas están en el schema `gym` (ver `db/schema.sql`). Solo pueden usar el sistema los correos que estén en la tabla `gym.admins`:
