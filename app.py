@@ -72,3 +72,42 @@ def salir():
 @requiere_login
 def inicio():
     return render_template("inicio.html")
+
+
+# ---------- Clientes ----------
+@app.route("/clientes", methods=["GET", "POST"])
+@requiere_login
+def clientes():
+    token = session["token"]
+    if request.method == "POST":
+        nombre = request.form.get("nombre", "").strip()
+        documento = request.form.get("documento", "").strip()
+        if len(nombre) < 3:
+            flash("El nombre es muy corto.", "error")
+        elif not (documento.isdigit() and 5 <= len(documento) <= 12):
+            flash("El documento debe tener entre 5 y 12 números.", "error")
+        else:
+            try:
+                db.insertar("clientes", {
+                    "nombre": nombre,
+                    "documento": documento,
+                    "telefono": request.form.get("telefono", "").strip() or None,
+                    "email": request.form.get("email", "").strip() or None,
+                }, token)
+                flash("Cliente guardado.", "ok")
+            except db.ErrorBD as e:
+                if e.codigo == "23505":
+                    flash("Ya existe un cliente con ese documento.", "error")
+                else:
+                    raise
+        return redirect("/clientes")
+    lista = db.consultar("clientes", token, {"select": "*", "order": "nombre"})
+    return render_template("clientes.html", clientes=lista)
+
+
+@app.route("/clientes/<int:id_cliente>/eliminar", methods=["POST"])
+@requiere_login
+def eliminar_cliente(id_cliente):
+    db.eliminar("clientes", id_cliente, session["token"])
+    flash("Cliente eliminado.", "ok")
+    return redirect("/clientes")

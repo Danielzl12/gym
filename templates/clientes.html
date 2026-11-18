@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block titulo %}Clientes{% endblock %}
+{% block contenido %}
+<h2>Clientes</h2>
+<form method="post" class="fila">
+  <input name="nombre" placeholder="Nombre completo" required>
+  <input name="documento" placeholder="Documento" required>
+  <input name="telefono" placeholder="Teléfono">
+  <input name="email" type="email" placeholder="Correo">
+  <button type="submit">Guardar</button>
+</form>
+<table>
+  <thead><tr><th>Nombre</th><th>Documento</th><th>Teléfono</th><th>Correo</th><th></th></tr></thead>
+  <tbody>
+  {% for c in clientes %}
+    <tr>
+      <td>{{ c.nombre }}</td><td>{{ c.documento }}</td><td>{{ c.telefono or "" }}</td><td>{{ c.email or "" }}</td>
+      <td>
+        <form method="post" action="/clientes/{{ c.id }}/eliminar" onsubmit="return confirm('¿Eliminar este cliente y sus membresías?')">
+          <button class="borrar" type="submit">Eliminar</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
