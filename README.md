@@ -89,9 +89,9 @@ La red neuronal no inventa números: solo entiende la pregunta. El dato sale sie
 **La red neuronal.** Es una red propia y local, sin servicios externos ni claves de API. Sigue la arquitectura de la guía:
 - **Entrada:** la pregunta convertida en un vector de palabras (sin tildes ni mayúsculas).
 - **Capa oculta:** 16 neuronas con ReLU.
-- **Salida:** una neurona por intención con Softmax (7 intenciones: saludo, ayuda, total de clientes, miembros activos, entradas de hoy, ingresos del mes y membresías por vencer). La guía usa una sola salida con Sigmoid porque su problema es de sí o no; aquí hay varias intenciones posibles.
-- **Entrenamiento:** 93 frases de ejemplo escritas por el equipo, pérdida de entropía cruzada y optimizador Adam.
-- **Resultado:** 100 % en las frases de entrenamiento y 21 de 21 aciertos en frases nuevas que la red nunca vio (`python -m ia.pruebas`).
+- **Salida:** una neurona por intención con Softmax (10 intenciones: saludo, ayuda, total de clientes, miembros activos, entradas de hoy, quiénes entraron hoy, entradas del mes, salidas, ingresos del mes y membresías por vencer). La guía usa una sola salida con Sigmoid porque su problema es de sí o no; aquí hay varias intenciones posibles.
+- **Entrenamiento:** 144 frases de ejemplo escritas por el equipo, pérdida de entropía cruzada y optimizador Adam.
+- **Resultado:** 100 % en las frases de entrenamiento y 31 de 31 aciertos en frases nuevas que la red nunca vio (`python -m ia.pruebas`).
 
 | Paso de la guía | Cómo se hizo en el proyecto |
 |---|---|
