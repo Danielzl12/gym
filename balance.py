@@ -24,6 +24,23 @@ def entradas_hoy(token, fecha):
         "fecha_hora": "gte." + fecha.isoformat() + "T00:00:00-05:00", "select": "id"}))
 
 
+def quienes_hoy(token, fecha):
+    """Nombres de los clientes que entraron hoy (sin repetir)."""
+    entradas = db.consultar("asistencias", token, {
+        "fecha_hora": "gte." + fecha.isoformat() + "T00:00:00-05:00",
+        "select": "fecha_hora,clientes(nombre)", "order": "fecha_hora"})
+    nombres = []
+    for e in entradas:
+        if e["clientes"]["nombre"] not in nombres:
+            nombres.append(e["clientes"]["nombre"])
+    return nombres
+
+
+def entradas_mes(token, fecha):
+    return len(db.consultar("asistencias", token, {
+        "fecha_hora": "gte." + fecha.replace(day=1).isoformat() + "T00:00:00-05:00", "select": "id"}))
+
+
 def ingresos_mes(token, fecha):
     pagos = db.consultar("pagos", token, {
         "fecha": "gte." + fecha.replace(day=1).isoformat(), "select": "valor"})
